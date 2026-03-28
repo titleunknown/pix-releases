@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/titleunknown/pix-releases/main/icon-64.png" width="96" height="96" style="border-radius: 22px;" alt="PIX">
+<img src="icon-64.png" width="96" height="96" style="border-radius: 22px;" alt="PIX">
 
 # PIX
 
