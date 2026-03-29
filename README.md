@@ -59,6 +59,8 @@ Head to the [**Releases**](https://github.com/titleunknown/pix-releases/releases
 | **Architecture** | Apple Silicon |
 | **Images** | JPG, PNG, GIF, WEBP |
 
+For best results keep files under 5MB/each
+
 ---
 
 ## Trial & Licensing
