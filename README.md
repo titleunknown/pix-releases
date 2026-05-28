@@ -65,13 +65,9 @@ For best results keep files under 5MB/each
 
 ## Trial & Licensing
 
-PIX includes a **5-day full-featured free trial** — no credit card required.
+PIX uses a one-time license key. A 5-day free trial is included — no credit card required.
 
-After the trial, a one-time license is required. Each license covers **2 seats** and is valid for the current major version of PIX (v1.x.x) with all point updates included at no additional cost.
-
-**[Purchase a PIX License](https://www.fainimade.com/product/pix-license-key/BDMIEMKSS3O7WBKLBEP2T76R)**
-
-Your license key will be emailed to you after purchase and can be entered directly in the activation window inside the app.
+Purchase a license at [software.fainimade.com](https://software.fainimade.com). Your key will be emailed to you and can be entered directly in the activation window. Each license covers **2 seats** and is valid for the current major version of PIX.
 
 ---
 
