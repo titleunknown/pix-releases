@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, sans-serif; background: #0f0f11; color: #d4d4d8;
+         font-size: 13px; line-height: 1.6; padding: 28px 28px 40px; }
+
+  h1 { font-size: 17px; font-weight: 600; color: #fff; margin-bottom: 3px; }
+  .tagline { color: #818183; font-size: 12px; margin-bottom: 20px; }
+
+  .prereq { background: #18181b; border: 1px solid #3f3f46; border-radius: 10px;
+            padding: 12px 14px; margin-bottom: 20px; font-size: 12px; color: #a1a1aa; }
+  .prereq strong { color: #e4e4e7; }
+  .prereq a { color: #a1a1aa; }
+
+  .diagram { display: flex; align-items: center; justify-content: center;
+             gap: 0; margin-bottom: 22px; padding: 16px;
+             background: #18181b; border-radius: 10px; border: 1px solid #27272a; }
+  .node { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 100px; }
+  .node-icon { width: 44px; height: 44px; border-radius: 10px;
+               display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .node-icon.mac  { background: #1e293b; border: 1px solid #334155; }
+  .node-icon.cf   { background: #1a1a1a; border: 1px solid #3f3f46; }
+  .node-icon.user { background: #0f1f0f; border: 1px solid #16a34a44; }
+  .node-label { font-size: 11px; color: #818183; text-align: center; line-height: 1.4; }
+  .node-label strong { display: block; color: #e4e4e7; font-size: 11px; }
+  .arrow { display: flex; flex-direction: column; align-items: center;
+           gap: 3px; flex: 1; padding: 0 4px; }
+  .arrow-line { height: 2px; width: 100%;
+                background: linear-gradient(90deg, #27272a, #52525b, #27272a); border-radius: 1px; }
+  .arrow-label { font-size: 10px; color: #818183; font-family: 'SF Mono', monospace;
+                 text-align: center; line-height: 1.3; white-space: nowrap; }
+
+  .steps { display: flex; flex-direction: column; gap: 0; margin-bottom: 22px; }
+  .step { display: flex; gap: 0; position: relative; }
+  .step-left { display: flex; flex-direction: column; align-items: center; width: 34px; flex-shrink: 0; }
+  .step-num { width: 24px; height: 24px; border-radius: 50%;
+              background: #27272a; border: 1px solid #3f3f46;
+              font-size: 11px; font-weight: 600; color: #e4e4e7;
+              display: flex; align-items: center; justify-content: center;
+              flex-shrink: 0; z-index: 1; }
+  .step-line { width: 1px; flex: 1; background: #27272a; margin: 4px 0; min-height: 12px; }
+  .step:last-child .step-line { display: none; }
+  .step-body { flex: 1; padding-bottom: 20px; padding-top: 1px; }
+  .step-title { font-weight: 600; color: #e4e4e7; margin-bottom: 5px; font-size: 13px; }
+  .step-desc { color: #a1a1aa; font-size: 12px; }
+  .step-desc p { margin-bottom: 6px; }
+
+  .cmd-block { display: flex; align-items: stretch; gap: 0;
+               background: #18181b; border: 1px solid #27272a; border-radius: 7px;
+               margin: 6px 0 5px; overflow: hidden; }
+  .cmd-text { font-family: 'SF Mono', 'Menlo', monospace; font-size: 11px;
+              color: #e4e4e7; padding: 8px 10px; flex: 1; user-select: all; }
+  .cmd-copy { padding: 0 11px; border: none; background: none;
+              color: #818183; cursor: pointer; font-size: 14px;
+              border-left: 1px solid #27272a; display: flex; align-items: center;
+              transition: color 0.15s, background 0.15s; }
+  .cmd-copy:hover { color: #e4e4e7; background: #27272a; }
+  .cmd-copy.copied { color: #4ade80; }
+
+  code { font-family: 'SF Mono', 'Menlo', monospace; font-size: 11px;
+         background: #27272a; color: #e4e4e7; padding: 2px 5px; border-radius: 4px; }
+
+  .config-block { background: #18181b; border: 1px solid #27272a; border-radius: 7px;
+                  padding: 10px 12px; margin: 7px 0 5px; font-family: 'SF Mono', monospace;
+                  font-size: 11px; color: #a1a1aa; line-height: 2; }
+  .config-block .hi { color: #fbbf24; font-weight: 600; }
+  .config-block .hi2 { color: #38bdf8; font-weight: 600; }
+  .config-block .dim { color: #3f3f46; }
+  .warn .hi2 { color: #38bdf8; font-weight: 600; }
+
+  .warn { background: #1c1a14; border-left: 3px solid #a16207;
+          border-radius: 0 7px 7px 0; padding: 9px 12px; margin: 8px 0 4px;
+          font-size: 11px; color: #a1a1aa; line-height: 1.6; }
+  .warn strong { color: #e4e4e7; }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .btn { padding: 7px 14px; border-radius: 7px; font-size: 12px; font-weight: 500;
+         cursor: pointer; border: none; text-decoration: none; display: inline-block; }
+  .btn-primary { background: #e4e4e7; color: #0f0f11; }
+  .btn-primary:hover { background: #fff; }
+  .btn-secondary { background: #27272a; color: #d4d4d8; border: 1px solid #3f3f46; }
+  .btn-secondary:hover { background: #3f3f46; }
+
+  .note { padding: 11px 14px; background: #18181b; border: 1px solid #27272a;
+          border-radius: 8px; font-size: 12px; color: #818183; }
+
+  h2 { font-size: 14px; font-weight: 600; color: #fff; margin: 26px 0 4px; }
+  .sub { color: #818183; font-size: 12px; margin-bottom: 14px; }
+
+  .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+  .choice { background: #18181b; border: 1px solid #27272a; border-radius: 10px; padding: 12px 14px;
+            font-size: 12px; color: #a1a1aa; }
+  .choice h3 { font-size: 13px; color: #e4e4e7; margin-bottom: 4px; }
+  .choice strong { color: #e4e4e7; }
+  .choice a { color: #a1a1aa; }
+  .mono { font-family: 'SF Mono', 'Menlo', monospace; font-size: 11px; }
+
+  .ui { color: #e4e4e7; font-weight: 600; }
+  .step-desc a { color: #a1a1aa; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 18px; }
+  th, td { text-align: left; vertical-align: top; padding: 7px 8px; border-bottom: 1px solid #27272a; }
+  th { color: #818183; font-weight: 500; font-size: 11px; }
+  td:first-child { color: #e4e4e7; width: 38%; }
+  td { color: #a1a1aa; }
+
+  #legacy { display: none; }
+</style>
+</head>
+<body>
+
+  <h1>Cloudflare Tunnel Setup</h1>
+  <p class="tagline">Share your gallery outside your network — no router config, no port forwarding, nothing to install. cloudflared is built into PIX.</p>
+
+  <div class="diagram">
+    <div class="node">
+      <div class="node-icon mac">💻</div>
+      <div class="node-label"><strong>Your Mac</strong>localhost:<span class="port-val">8080</span></div>
+    </div>
+    <div class="arrow">
+      <div class="arrow-label">built-in cloudflared</div>
+      <div class="arrow-line"></div>
+    </div>
+    <div class="node">
+      <div class="node-icon cf">🟠</div>
+      <div class="node-label"><strong>Cloudflare</strong>encrypted</div>
+    </div>
+    <div class="arrow">
+      <div class="arrow-label">public HTTPS</div>
+      <div class="arrow-line"></div>
+    </div>
+    <div class="node">
+      <div class="node-icon user">👥</div>
+      <div class="node-label"><strong>Anyone</strong>with the link</div>
+    </div>
+  </div>
+
+  <div class="choices">
+    <div class="choice">
+      <h3>Temporary link</h3>
+      <p><strong>Ready in a minute.</strong> No account, no domain.</p>
+      <p>A random address like <span class="mono">calm-river-word.trycloudflare.com</span> that changes each time the tunnel starts. Good for a one-off.</p>
+      <p><a href="#quick">How →</a></p>
+    </div>
+    <div class="choice">
+      <h3>Your own domain</h3>
+      <p><strong>About 15 minutes, once.</strong> Free Cloudflare account and a domain.</p>
+      <p>A permanent address like <span class="mono">pix.yourdomain.com</span> you can reuse on every job.</p>
+      <p><a href="#domain">How →</a></p>
+    </div>
+  </div>
+
+  <h2 id="quick">Temporary link</h2>
+  <p class="sub">No sign-up and no Terminal.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-left"><div class="step-num">1</div><div class="step-line"></div></div>
+      <div class="step-body">
+        <div class="step-title">Choose Temporary link</div>
+        <div class="step-desc"><p>In the PIX menu choose <span class="ui">Tunnel Settings…</span> and pick <span class="ui">Temporary link</span>.</p></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-left"><div class="step-num">2</div><div class="step-line"></div></div>
+      <div class="step-body">
+        <div class="step-title">Set a password (recommended)</div>
+        <div class="step-desc"><p>Anyone with the link can open the gallery. Add a password under <span class="ui">Settings → Security</span> and send it separately from the link.</p></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-left"><div class="step-num">3</div><div class="step-line"></div></div>
+      <div class="step-body">
+        <div class="step-title">Start the tunnel</div>
+        <div class="step-desc"><p>Click <span class="ui">Start Tunnel</span>. A few seconds later the address appears in the menu, with <span class="ui">Copy Public URL</span> and <span class="ui">Show QR Code</span>. Next time you start it, the address will be different.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="domain">Your own domain</h2>
+  <p class="sub">Everything happens in the Cloudflare dashboard and PIX. No Terminal and no config files.</p>
+
+  <div class="prereq">
+    <strong>Before you start, you need two things:</strong><br>
+    1. A free Cloudflare account — no credit card required. <a href="https://dash.cloudflare.com/sign-up">Sign up →</a><br>
+    2. A domain on that account. Already own one elsewhere? <a href="https://developers.cloudflare.com/fundamentals/setup/manage-domains/add-site/">Add it to Cloudflare →</a> (this moves its DNS to Cloudflare, so check your website and email records come across). No domain? You can buy one inside the dashboard under <strong>Domains</strong>, at cost.<br><br>
+    You can create the tunnel while a newly added domain is still <strong>Pending</strong>; step 5 needs it <strong>Active</strong>.
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-left"><div class="step-num">1</div><div class="step-line"></div></div>
+      <div class="step-body">
+        <div class="step-title">Create a tunnel</div>
+        <div class="step-desc">
+          <p>In the <a href="https://dash.cloudflare.com/">Cloudflare dashboard</a> open <span class="ui">Networking › Tunnels</span> and select <span class="ui">Create a tunnel</span>. Name it, for example <code>PIX</code>.</p>
+          <p style="color:#818183">In older dashboards it's under Zero Trust › Networks › Tunnels; if asked for a connector type, choose Cloudflared.</p>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-left"><div class="step-num">2</div><div class="step-line"></div></div>
+      <div class="step-body">
+        <div class="step-title">Copy the install command</div>
+        <div class="step-desc">
+          <p>Choose <span class="ui">macOS</span>. Cloudflare shows an install command containing a long code starting with <code>eyJ</code> — the tunnel's <strong>token</strong>. Copy the whole command.</p>
+          <div class="warn"><strong>Don't run the command.</strong> PIX has cloudflared built in and runs it for you. Treat the token like a password: anyone who has it can stand in for your tunnel.</div>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-left"><div class="step-num">3</div><div class="step-line"></div></div>
+      <div class="step-body">
+        <div class="step-title">Paste it into PIX</div>
+        <div class="step-desc">
+          <p>In the PIX menu choose <span class="ui">Tunnel Settings…</span>, pick <span class="ui">Your domain</span>, paste into <span class="ui">Tunnel token</span> and click <span class="ui">Save</span>. PIX keeps only the token, in your Mac's Keychain. If macOS asks whether PIX may use it, choose <strong>Always Allow</strong>.</p>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-left"><div class="step-num">4</div><div class="step-line"></div></div>
+      <div class="step-body">
+        <div class="step-title">Start the tunnel</div>
+        <div class="step-desc">
+          <p>Make sure the server is running, then click <span class="ui">Start Tunnel</span>. Within a few seconds the dashboard shows the tunnel as connected — select <span class="ui">Continue</span> there.</p>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-left"><div class="step-num">5</div><div class="step-line"></div></div>
+      <div class="step-body">
+        <div class="step-title">Publish your address</div>
+        <div class="step-desc">
+          <p>Open your tunnel's <span class="ui">Routes</span> tab › <span class="ui">Add route</span> › <span class="ui">Published application</span>.</p>
+          <p><span class="ui">Subdomain</span>: one word such as <code>pix</code>, <code>photos</code> or <code>gallery</code>. <span class="ui">Domain</span>: your domain. Leave <span class="ui">Path</span> empty. <span class="ui">Service URL</span> — copy this exactly, including <code>http://</code>:</p>
+          <div class="cmd-block">
+            <span class="cmd-text" id="serviceURL">http://localhost:8080</span>
+            <button class="cmd-copy" onclick="copy(this, document.getElementById('serviceURL').textContent)" title="Copy">⎘</button>
+          </div>
+          <p>Select <span class="ui">Add route</span>. Cloudflare creates the DNS record for you.</p>
+          <div class="warn"><strong>Plain <code>http</code>, not https</strong> — the line between Cloudflare and your Mac is already encrypted, and visitors get https from Cloudflare. The number is PIX's port (<span class="ui">Settings → Server</span>); if you ever change it, update the route to match. PIX warns you in the menu if they differ.</div>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-left"><div class="step-num">6</div><div class="step-line"></div></div>
+      <div class="step-body">
+        <div class="step-title">You're live</div>
+        <div class="step-desc">
+          <p>PIX picks the address up from your route and shows it in the menu, with Copy and QR code. (If it doesn't, type it into <span class="ui">Public address</span> in Tunnel Settings.) Test it on your phone with Wi-Fi off.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="legacy" class="prereq">
+    <strong>Set up the old way, with Terminal?</strong> Your <code>~/.cloudflared/config.yml</code> keeps working: PIX uses it in <span class="ui">Config file</span> mode, with its built-in cloudflared. You no longer need a separately installed cloudflared (Homebrew or the .pkg) for PIX.
+    <a href="pix://openconfig">Show config file…</a>
+  </div>
+
+  <h2>Keeping it running</h2>
+  <ul class="steps" style="list-style:none; color:#a1a1aa; font-size:12px; gap:6px;">
+    <li>– The link works only while PIX is running, the server is on, and your Mac is awake. For long sessions, stop your Mac sleeping in <strong>System Settings → Energy</strong> (or <strong>Battery → Options</strong> on a laptop, plugged in).</li>
+    <li>– If the tunnel was on when you quit PIX, it starts again by itself next time the server starts.</li>
+    <li>– Click <span class="ui">Stop Tunnel</span> when you're done. Your gallery is then only visible on your local network.</li>
+  </ul>
+
+  <h2>If something goes wrong</h2>
+  <table>
+    <tr><th>You see</th><th>What to do</th></tr>
+    <tr><td>Visitors get Cloudflare error 1033 or 530</td><td>The tunnel isn't connected: it's stopped, PIX isn't running, or the Mac is asleep.</td></tr>
+    <tr><td>Visitors get 502 Bad Gateway</td><td>The route's Service URL doesn't match PIX's port, says <code>https://</code> instead of <code>http://</code>, or the server is stopped.</td></tr>
+    <tr><td>"Cloudflare doesn't recognise this tunnel"</td><td>The token is wrong or the tunnel was deleted. Copy the install command again, click <span class="ui">Remove</span> next to the token in Tunnel Settings, paste, Save.</td></tr>
+    <tr><td>"Can't reach Cloudflare"</td><td>Check the Mac's internet. A strict office or venue firewall must allow outgoing connections on port 7844.</td></tr>
+    <tr><td>Menu says "Connected — add a route"</td><td>The tunnel is up but has no published address yet: do step 5.</td></tr>
+    <tr><td>"A DNS record already exists" when adding the route</td><td>That subdomain is taken in your DNS. Pick another word, or delete the old record under <strong>DNS → Records</strong> if it's unused.</td></tr>
+    <tr><td>The domain stays Pending</td><td>Your registrar's nameservers aren't Cloudflare's yet, or DNSSEC is still on there.</td></tr>
+  </table>
+
+  <div class="actions">
+    <a class="btn btn-primary" href="pix://settings">Open Tunnel Settings…</a>
+    <a class="btn btn-secondary" href="https://dash.cloudflare.com/sign-up">Create Cloudflare Account ↗</a>
+    <a class="btn btn-secondary" href="https://dash.cloudflare.com">Cloudflare Dashboard ↗</a>
+  </div>
+
+  <div class="note">
+    The Cloudflare account, the tunnel and temporary links are free; only a domain costs money. Cloudflare's dashboard changes from time to time — if a menu name here doesn't match, see Cloudflare's guide <a href="https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/get-started/create-remote-tunnel/" style="color:#a1a1aa">Create a tunnel (dashboard)</a>.
+  </div>
+
+<script>
+function setup(port, hasConfig) {
+  document.querySelectorAll('.port-val').forEach(function(el) { el.textContent = String(port); });
+  document.getElementById('serviceURL').textContent = 'http://localhost:' + port;
+  if (hasConfig) document.getElementById('legacy').style.display = 'block';
+}
+
+function copy(btn, text) {
+  navigator.clipboard.writeText(text).then(function() {
+    btn.textContent = '✓';
+    btn.classList.add('copied');
+    setTimeout(function() {
+      btn.textContent = '⎘';
+      btn.classList.remove('copied');
+    }, 1500);
+  });
+}
+</script>
+</body>
+</html>
